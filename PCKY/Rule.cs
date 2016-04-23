@@ -4,39 +4,43 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PCKY
-{
-    class Rule
-    {
+namespace PCKY {
+    class Rule {
         protected string term;
 
-        public string Term
-        {
-            get
-            {
+        public string Term {
+            get {
                 return term;
             }
 
-            set
-            {
+            set {
                 term = value;
             }
         }
 
-        public decimal Pro
-        {
-            get
-            {
+        public decimal Pro {
+            get {
                 return pro;
             }
 
-            set
-            {
+            set {
                 pro = value;
             }
         }
 
+        protected int Type {
+            get {
+                return type;
+            }
+
+            set {
+                type = value;
+            }
+        }
+
         protected decimal pro;
+
+        private int type;
 
     }
 }

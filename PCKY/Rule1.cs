@@ -4,45 +4,38 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PCKY
-{
-    class Rule1:Rule
-    {
+namespace PCKY {
+    class Rule1 : Rule {
         //private string term;
         private float p;
         private List<string> alter_terms;
 
-        public float P
-        {
-            get
-            {
+        public float P {
+            get {
                 return p;
             }
 
-            set
-            {
+            set {
                 p = value;
             }
         }
 
-        public List<string> Alter_terms
-        {
-            get
-            {
+        public List<string> Alter_terms {
+            get {
                 return alter_terms;
             }
 
-            set
-            {
+            set {
                 alter_terms = value;
             }
         }
 
-        public Rule1()
-        {
+        public Rule1() {
             Term = "";
             Alter_terms = null;
             P = 0;
+
+            Type = 1;
         }
     }
 }
