@@ -109,11 +109,7 @@ namespace PCKY {
                     }
 
                 }
-                //foreach (var item in cellMatrix[0, testingSentence.Length - 1]) {
-                //    if (item.Rule.Term.ToUpper().CompareTo("S") == 0) {
-                //        //MessageBox.Show("OK babe" + item.Rule.Pro);
-                //    }
-                //}                    
+                  
                 for (int i = 0; i < cellMatrix[0,testingSentence.Length-1].Count; i++) {
                     if (cellMatrix[0, testingSentence.Length - 1][i].Rule.Term.ToUpper().CompareTo("S") == 0) {
                         MessageBox.Show(buildTree(0,testingSentence.Length-1,i,cellMatrix));
