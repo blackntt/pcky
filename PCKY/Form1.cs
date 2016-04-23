@@ -109,12 +109,26 @@ namespace PCKY {
                     }
 
                 }
-                foreach (var item in cellMatrix[0, testingSentence.Length - 1]) {
-                    if (item.Rule.Term.ToUpper().CompareTo("S") == 0) {
-                        MessageBox.Show("OK babe" + item.Rule.Pro);
+                //foreach (var item in cellMatrix[0, testingSentence.Length - 1]) {
+                //    if (item.Rule.Term.ToUpper().CompareTo("S") == 0) {
+                //        //MessageBox.Show("OK babe" + item.Rule.Pro);
+                //    }
+                //}                    
+                for (int i = 0; i < cellMatrix[0,testingSentence.Length-1].Count; i++) {
+                    if (cellMatrix[0, testingSentence.Length - 1][i].Rule.Term.ToUpper().CompareTo("S") == 0) {
+                        MessageBox.Show(buildTree(0,testingSentence.Length-1,i,cellMatrix));
                     }
-                }                    
+                }
             }
+        }
+        private string buildTree(int x_index, int y_index, int k_rule, List<Cell>[,] cellMatrix) {
+            string treeString = "";
+            string[] testingSentence = this.textBox1.Text.Split(' ');
+            Cell cell = cellMatrix[x_index, y_index][k_rule];
+            if (cell.Index_rule1 == -1)
+                return "(" + cell.Rule.Term + " " + testingSentence[x_index] + ")";
+            else
+                return "(" + cell.Rule.Term + " " + buildTree(cell.X_cell1,cell.Y_cell1, cell.Index_rule1,cellMatrix) + " " + buildTree(cell.X_cell2, cell.Y_cell2, cell.Index_rule2, cellMatrix) + ")";
         }
     }
 }
