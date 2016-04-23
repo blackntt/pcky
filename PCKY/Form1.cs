@@ -79,7 +79,6 @@ namespace PCKY {
                         for (int col = row; col < i; col++) {
                             if (cellMatrix[row, col].Count != 0) {
                                 if (cellMatrix[col + 1, i].Count != 0) {
-
                                     foreach (var item in rules1) {
                                         for (int k_rule1 = 0; k_rule1 < cellMatrix[row, col].Count; k_rule1++) {
                                             for (int k_rule2 = 0; k_rule2 < cellMatrix[col + 1, i].Count; k_rule2++) {
