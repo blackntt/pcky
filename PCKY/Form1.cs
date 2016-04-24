@@ -14,6 +14,9 @@ namespace PCKY {
         List<Rule1> rules1 = new List<Rule1>();
         List<Rule2> rules2 = new List<Rule2>();
         List<Cell>[,] cellMatrix;
+        Bitmap bt;
+        int h_distance = 90;
+        int v_distance = 90;
         public Form1() {
             InitializeComponent();
             getRulesFromFile(rules1, rules2);
@@ -48,6 +51,8 @@ namespace PCKY {
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e) {
             //enter key
             if (e.KeyChar == 13) {
+
+                this.lbTreesListForm.Text = "";
 
                 //get and split sentences based on space
                 string[] testingSentence = this.textBox1.Text.Split(' ');
@@ -109,22 +114,113 @@ namespace PCKY {
                     }
 
                 }
-                  
-                for (int i = 0; i < cellMatrix[0,testingSentence.Length-1].Count; i++) {
+                
+                for (int i = 0; i < cellMatrix[0, testingSentence.Length - 1].Count; i++) {
                     if (cellMatrix[0, testingSentence.Length - 1][i].Rule.Term.ToUpper().CompareTo("S") == 0) {
-                        MessageBox.Show(buildTree(0,testingSentence.Length-1,i,cellMatrix));
+                        //bt = new Bitmap(testingSentence.Length* (h_distance+10), countTree(0, testingSentence.Length - 1, i, cellMatrix)*(v_distance+10));
+                        bt = new Bitmap(testingSentence.Length * (h_distance + 10)*2, countHeightOfTree(0, testingSentence.Length - 1, i, cellMatrix) * (v_distance + 10));
+                        this.lbTreesListForm.Text += cellMatrix[0, testingSentence.Length - 1][i].Rule.Pro + " " + buildTree(0, testingSentence.Length - 1, i, cellMatrix) + "\n";
+                        //drawTree(0, testingSentence.Length - 1, i, cellMatrix, this.pnTree.Size.Width / 2, 10);
+                        drawTree(0, testingSentence.Length - 1, i, cellMatrix,bt.Size.Width/2, 10);
+                        this.pnTree.Image = bt;
                     }
                 }
             }
         }
-        private string buildTree(int x_index, int y_index, int k_rule, List<Cell>[,] cellMatrix) {
-            string treeString = "";
-            string[] testingSentence = this.textBox1.Text.Split(' ');
+
+        private int countHeightOfTree(int x_index, int y_index, int k_rule, List<Cell>[,] cellMatrix) {
             Cell cell = cellMatrix[x_index, y_index][k_rule];
-            if (cell.Index_rule1 == -1)
+            if (cell.Index_rule1 == -1) {
+                string[] testingSentence = this.textBox1.Text.Split(' ');
+                return 1;
+            } else {
+                int left = countHeightOfTree(cell.X_cell1, cell.Y_cell1, cell.Index_rule1, cellMatrix);
+                int right = countHeightOfTree(cell.X_cell2, cell.Y_cell2, cell.Index_rule2, cellMatrix);
+                int max = left > right ? left : right;
+                return 1 + max;
+            }
+        }
+
+        private string buildTree(int x_index, int y_index, int k_rule, List<Cell>[,] cellMatrix) {
+            Cell cell = cellMatrix[x_index, y_index][k_rule];
+            if (cell.Index_rule1 == -1) {
+                string[] testingSentence = this.textBox1.Text.Split(' ');
                 return "(" + cell.Rule.Term + " " + testingSentence[x_index] + ")";
-            else
-                return "(" + cell.Rule.Term + " " + buildTree(cell.X_cell1,cell.Y_cell1, cell.Index_rule1,cellMatrix) + " " + buildTree(cell.X_cell2, cell.Y_cell2, cell.Index_rule2, cellMatrix) + ")";
+            } else {
+                return "(" + cell.Rule.Term + " " + buildTree(cell.X_cell1, cell.Y_cell1, cell.Index_rule1, cellMatrix) + " " + buildTree(cell.X_cell2, cell.Y_cell2, cell.Index_rule2, cellMatrix) + ")";
+            }
+        }
+
+        private void drawTree(int x_index, int y_index, int k_rule, List<Cell>[,] cellMatrix, int x_draw, int y_draw) {
+
+            //Graphics gr = this.pictureBox1.CreateGraphics();
+            Graphics gr = Graphics.FromImage(bt);
+            Cell cell = cellMatrix[x_index, y_index][k_rule];
+            if (cell.Index_rule1 == -1) {
+                string[] testingSentence = this.textBox1.Text.Split(' ');
+                gr.DrawString(cell.Rule.Term + "("+ x_index + ", "+ (y_index +1) + ")", Font, Brushes.Black, new Point(x_draw, y_draw));
+                gr.DrawLine(Pens.Black,new Point(x_draw,y_draw), new Point(x_draw, y_draw + v_distance));
+                gr.DrawString(testingSentence[x_index], Font, Brushes.Black, new Point(x_draw, y_draw+ v_distance));
+            } else {
+                gr.DrawString(cell.Rule.Term + "(" + x_index + ", " + (y_index + 1) + ")", Font, Brushes.Black, new Point(x_draw, y_draw));
+
+                gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw - h_distance, y_draw + v_distance));
+                gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw + h_distance, y_draw + v_distance));
+                drawTree(cell.X_cell1, cell.Y_cell1, cell.Index_rule1, cellMatrix, x_draw - h_distance, y_draw + v_distance);
+                drawTree(cell.X_cell2, cell.Y_cell2, cell.Index_rule2, cellMatrix, x_draw + h_distance, y_draw + v_distance);
+
+                //gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw, y_draw + v_distance));
+                //gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw + h_distance, y_draw + v_distance));
+                //drawTree(cell.X_cell1, cell.Y_cell1, cell.Index_rule1, cellMatrix, x_draw, y_draw + v_distance);
+                //drawTree(cell.X_cell2, cell.Y_cell2, cell.Index_rule2, cellMatrix, x_draw + h_distance, y_draw + v_distance);
+            }
+        }
+
+        private void pnTree_Paint(object sender, PaintEventArgs e) {
+            e.Graphics.TranslateTransform(pnTree.AutoScrollPosition.X, pnTree.AutoScrollPosition.Y);
+            this.lbTreesListForm.Text = "";
+            if (this.textBox1.Text != "") {
+                string[] testingSentence = this.textBox1.Text.Split(' ');
+                for (int i = 0; i < cellMatrix[0, testingSentence.Length - 1].Count; i++) {
+                    if (cellMatrix[0, testingSentence.Length - 1][i].Rule.Term.ToUpper().CompareTo("S") == 0) {
+                        this.lbTreesListForm.Text += cellMatrix[0, testingSentence.Length - 1][i].Rule.Pro + " " + buildTree(0, testingSentence.Length - 1, i, cellMatrix) + "\n";
+                        //drawTree(0, testingSentence.Length - 1, i, cellMatrix, this.pnTree.Size.Width / 2, 10);
+                        drawTree(0, testingSentence.Length - 1, i, cellMatrix, 200, 10);
+                    }
+                }
+            }
         }
     }
+
+    //REF: http://stackoverflow.com/questions/4305011/c-sharp-panel-for-drawing-graphics-and-scrolling
+    class ImageBox : Panel {
+            public ImageBox() {
+                this.AutoScroll = true;
+                this.DoubleBuffered = true;
+            }
+            private Image mImage;
+            public Image Image {
+                get { return mImage; }
+                set {
+                    mImage = value;
+                    if (value == null) this.AutoScrollMinSize = new Size(0, 0);
+                    else {
+                        var size = value.Size;
+                        using (var gr = this.CreateGraphics()) {
+                            size.Width = (int)(size.Width * gr.DpiX / value.HorizontalResolution);
+                            size.Height = (int)(size.Height * gr.DpiY / value.VerticalResolution);
+                        }
+                        this.AutoScrollMinSize = size;
+                    }
+                    this.Invalidate();
+                }
+            }
+            protected override void OnPaint(PaintEventArgs e) {
+                e.Graphics.TranslateTransform(this.AutoScrollPosition.X, this.AutoScrollPosition.Y);
+                if (mImage != null) e.Graphics.DrawImage(mImage, 0, 0);
+                base.OnPaint(e);
+            }
+        }
 }
+
+
