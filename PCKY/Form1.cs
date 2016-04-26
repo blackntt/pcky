@@ -17,9 +17,13 @@ namespace PCKY {
         Bitmap bt;
         int h_distance = 90;
         int v_distance = 90;
+
+        TextBox[,] textBoxMatrix;
+
         public Form1() {
             InitializeComponent();
             getRulesFromFile(rules1, rules2);
+            
         }
         private void getRulesFromFile(List<Rule1> rules1, List<Rule2> rules2) {
             //Read content from the training file to a string
@@ -52,13 +56,23 @@ namespace PCKY {
             //enter key
             if (e.KeyChar == 13) {
 
-                this.lbTreesListForm.Text = "";
-
+                this.lVListTree.Items.Clear();
+                this.lVListTree.Items.Clear();
                 //get and split sentences based on space
                 string[] testingSentence = this.textBox1.Text.Split(' ');
 
+                if (textBoxMatrix != null) {
+                    for (int i = 0; i < testingSentence.Length + 1; i++) {
+                        for (int j = 0; j < testingSentence.Length + 1; j++) {
+                            this.Controls.Remove(textBoxMatrix[i, j]);
+                        }
+                    }
+                }             
+
                 //init matrix
                 cellMatrix = new List<Cell>[testingSentence.Length, testingSentence.Length];
+
+                textBoxMatrix = new TextBox[testingSentence.Length + 1, testingSentence.Length + 1];
 
                 //init for each cell in cellMatrix;
                 for (int i = 0; i < testingSentence.Length; i++) {
@@ -114,16 +128,71 @@ namespace PCKY {
                     }
 
                 }
-                
+
+                int x_start_button= 1100;
+                int y_start_button= 50;
+                int width_textbox = 50;
+                int height_textbox = 10;
+                int textbox_cell_distance_h = 0;
+                int textbox_cell_distance_v = 10;
+
+                textBoxMatrix[0, 0] = new TextBox();
+                textBoxMatrix[0, 0].Size = new Size(width_textbox, height_textbox);
+                textBoxMatrix[0, 0].Location = new Point(x_start_button, y_start_button);
+                textBoxMatrix[0, 0].Text = "0";
+                this.Controls.Add(textBoxMatrix[0, 0]);
+
+                for (int j = 0; j < testingSentence.Length; j++) {
+                    textBoxMatrix[0, j + 1] = new TextBox();
+                    textBoxMatrix[0, j + 1].Size = new Size(width_textbox, height_textbox);
+                    textBoxMatrix[0, j + 1].Location = new Point(x_start_button + (width_textbox + textbox_cell_distance_h) * (j+1), y_start_button );
+                    textBoxMatrix[0, j + 1].Text = testingSentence[j] + "--" + (j+1);
+                    this.Controls.Add(textBoxMatrix[0, j + 1]);
+                }
+                for (int i = 0; i < testingSentence.Length; i++) {
+                    textBoxMatrix[i + 1, 0] = new TextBox();
+                    textBoxMatrix[i + 1, 0].Size = new Size(width_textbox, height_textbox);
+                    textBoxMatrix[i + 1, 0].Location = new Point(x_start_button, y_start_button + (height_textbox + textbox_cell_distance_v) * (i+1));
+                    textBoxMatrix[i + 1, 0].Text = i.ToString();
+                    this.Controls.Add(textBoxMatrix[i + 1, 0]);
+                }
+                for (int i = 0; i < testingSentence.Length; i++) {
+                    for (int j = 0; j < testingSentence.Length; j++) {
+                        string result = "";
+                        for (int k = 0; k < cellMatrix[i,j].Count; k++) {
+                            result += cellMatrix[i, j][k].Rule.Term + " ";
+                        }
+                        textBoxMatrix[i + 1, j + 1] = new TextBox();
+                        textBoxMatrix[i + 1, j + 1].Size = new Size(width_textbox, height_textbox);
+                        textBoxMatrix[i + 1, j + 1].Location = new Point(x_start_button + (width_textbox + textbox_cell_distance_h) * (j + 1), y_start_button + (height_textbox + textbox_cell_distance_v) * (i + 1));
+                        textBoxMatrix[i + 1, j + 1].Text = result;
+                        this.Controls.Add(textBoxMatrix[i + 1, j + 1]);
+                    }
+                }
+
                 for (int i = 0; i < cellMatrix[0, testingSentence.Length - 1].Count; i++) {
                     if (cellMatrix[0, testingSentence.Length - 1][i].Rule.Term.ToUpper().CompareTo("S") == 0) {
-                        //bt = new Bitmap(testingSentence.Length* (h_distance+10), countTree(0, testingSentence.Length - 1, i, cellMatrix)*(v_distance+10));
+                        //bt = new Bitmap(testingSentence.Length * (h_distance + 10), countHeightOfTree(0, testingSentence.Length - 1, i, cellMatrix) * (v_distance + 10));
                         bt = new Bitmap(testingSentence.Length * (h_distance + 10)*2, countHeightOfTree(0, testingSentence.Length - 1, i, cellMatrix) * (v_distance + 10));
-                        this.lbTreesListForm.Text += cellMatrix[0, testingSentence.Length - 1][i].Rule.Pro + " " + buildTree(0, testingSentence.Length - 1, i, cellMatrix) + "\n";
-                        //drawTree(0, testingSentence.Length - 1, i, cellMatrix, this.pnTree.Size.Width / 2, 10);
+                        //this.lbTreesListForm.Text += cellMatrix[0, testingSentence.Length - 1][i].Rule.Pro + " " + buildTree(0, testingSentence.Length - 1, i, cellMatrix) + "\n";
+
+
+                        string[] tempItem = new string[5];
+                        tempItem[0] = i.ToString();
+                        tempItem[1] = cellMatrix[0, testingSentence.Length - 1][i].Rule.Pro + " " + buildTree(0, testingSentence.Length - 1, i, cellMatrix);
+
+                        this.lVListTree.Items.Add(new ListViewItem(tempItem));
+                        //drawTree(0, testingSentence.Length - 1, i, cellMatrix, 10, 10);
                         drawTree(0, testingSentence.Length - 1, i, cellMatrix,bt.Size.Width/2, 10);
                         this.pnTree.Image = bt;
+
+
+                        this.tVTree.Nodes.Add(drawTreeView(0, testingSentence.Length - 1, i, cellMatrix));
                     }
+                }
+                if (this.lVListTree.Items.Count != 0) {
+                    this.lVListTree.Items[0].Focused = true;
+                    this.lVListTree.Items[0].Selected = true;
                 }
             }
         }
@@ -151,18 +220,34 @@ namespace PCKY {
             }
         }
 
-        private void drawTree(int x_index, int y_index, int k_rule, List<Cell>[,] cellMatrix, int x_draw, int y_draw) {
-
-            //Graphics gr = this.pictureBox1.CreateGraphics();
-            Graphics gr = Graphics.FromImage(bt);
+        private TreeNode drawTreeView(int x_index, int y_index, int k_rule, List<Cell>[,] cellMatrix) {
             Cell cell = cellMatrix[x_index, y_index][k_rule];
             if (cell.Index_rule1 == -1) {
+                TreeNode newNode = new TreeNode(cell.Rule.Term + "(" + x_index + ", " + (y_index + 1) + ")");
                 string[] testingSentence = this.textBox1.Text.Split(' ');
-                gr.DrawString(cell.Rule.Term + "("+ x_index + ", "+ (y_index +1) + ")", Font, Brushes.Black, new Point(x_draw, y_draw));
-                gr.DrawLine(Pens.Black,new Point(x_draw,y_draw), new Point(x_draw, y_draw + v_distance));
-                gr.DrawString(testingSentence[x_index], Font, Brushes.Black, new Point(x_draw, y_draw+ v_distance));
+                newNode.Nodes.Add(testingSentence[x_index]);
+                return newNode;
             } else {
-                gr.DrawString(cell.Rule.Term + "(" + x_index + ", " + (y_index + 1) + ")", Font, Brushes.Black, new Point(x_draw, y_draw));
+                TreeNode newNode = new TreeNode(cell.Rule.Term + "(" + x_index + ", " + (y_index + 1) + ")");
+                newNode.Nodes.Add(drawTreeView(cell.X_cell1, cell.Y_cell1, cell.Index_rule1, cellMatrix));
+                newNode.Nodes.Add(drawTreeView(cell.X_cell2, cell.Y_cell2, cell.Index_rule2, cellMatrix));
+                return newNode;
+            }
+        }
+
+        private void drawTree(int x_index, int y_index, int k_rule, List<Cell>[,] cellMatrix, int x_draw, int y_draw) {
+            Graphics gr = Graphics.FromImage(bt);
+            Cell cell = cellMatrix[x_index, y_index][k_rule];
+            Font drawFont = new Font("Arial", 13);
+            SolidBrush drawBrush = new SolidBrush(Color.Black);
+            if (cell.Index_rule1 == -1) {
+                string[] testingSentence = this.textBox1.Text.Split(' ');
+                gr.DrawString(cell.Rule.Term + "("+ x_index + ", "+ (y_index +1) + ")", drawFont, drawBrush, new Point(x_draw, y_draw));
+                gr.DrawLine(Pens.Black,new Point(x_draw,y_draw), new Point(x_draw, y_draw + v_distance));
+                gr.DrawString(testingSentence[x_index], drawFont, drawBrush, new Point(x_draw, y_draw+ v_distance));
+                
+            } else {
+                gr.DrawString(cell.Rule.Term + "(" + x_index + ", " + (y_index + 1) + ")", drawFont, drawBrush, new Point(x_draw, y_draw));
 
                 gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw - h_distance, y_draw + v_distance));
                 gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw + h_distance, y_draw + v_distance));
@@ -178,16 +263,30 @@ namespace PCKY {
 
         private void pnTree_Paint(object sender, PaintEventArgs e) {
             e.Graphics.TranslateTransform(pnTree.AutoScrollPosition.X, pnTree.AutoScrollPosition.Y);
-            this.lbTreesListForm.Text = "";
             if (this.textBox1.Text != "") {
                 string[] testingSentence = this.textBox1.Text.Split(' ');
                 for (int i = 0; i < cellMatrix[0, testingSentence.Length - 1].Count; i++) {
                     if (cellMatrix[0, testingSentence.Length - 1][i].Rule.Term.ToUpper().CompareTo("S") == 0) {
-                        this.lbTreesListForm.Text += cellMatrix[0, testingSentence.Length - 1][i].Rule.Pro + " " + buildTree(0, testingSentence.Length - 1, i, cellMatrix) + "\n";
-                        //drawTree(0, testingSentence.Length - 1, i, cellMatrix, this.pnTree.Size.Width / 2, 10);
                         drawTree(0, testingSentence.Length - 1, i, cellMatrix, 200, 10);
                     }
                 }
+            }
+        }
+
+        private void lVListTree_SelectedIndexChanged(object sender, EventArgs e) {
+            if(this.tVTree.Nodes.Count != 0 && this.lVListTree.SelectedItems.Count != 0) {
+                this.tVTree.Nodes[this.lVListTree.SelectedIndices[0]].ExpandAll();
+
+                this.pnTree.Image = null;
+
+                string[] testingSentence = this.textBox1.Text.Split(' ');
+
+
+                //bt = new Bitmap(testingSentence.Length * (h_distance + 10), countHeightOfTree(0, testingSentence.Length - 1, this.lVListTree.SelectedIndices[0], cellMatrix) * (v_distance + 10));
+                bt = new Bitmap(testingSentence.Length * (h_distance + 10) * 2, countHeightOfTree(0, testingSentence.Length - 1, this.lVListTree.SelectedIndices[0], cellMatrix) * (v_distance + 10));
+                //drawTree(0, testingSentence.Length - 1, this.lVListTree.SelectedIndices[0], cellMatrix, 10, 10);
+                drawTree(0, testingSentence.Length - 1, this.lVListTree.SelectedIndices[0], cellMatrix, bt.Size.Width / 2, 10);
+                this.pnTree.Image = bt;
             }
         }
     }
