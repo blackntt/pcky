@@ -18,6 +18,8 @@ namespace PCKY {
         int h_distance = 90;
         int v_distance = 90;
 
+        string currSentence = "";
+
         TextBox[,] textBoxMatrix;
 
         public Form1() {
@@ -57,17 +59,26 @@ namespace PCKY {
             if (e.KeyChar == 13) {
 
                 this.lVListTree.Items.Clear();
-                this.lVListTree.Items.Clear();
+                this.tVTree.Nodes.Clear();
+                this.pnTree.Image = null;
                 //get and split sentences based on space
-                string[] testingSentence = this.textBox1.Text.Split(' ');
-
-                if (textBoxMatrix != null) {
-                    for (int i = 0; i < testingSentence.Length + 1; i++) {
-                        for (int j = 0; j < testingSentence.Length + 1; j++) {
-                            this.Controls.Remove(textBoxMatrix[i, j]);
+                if (currSentence != "") {
+                    string[] currSentences = currSentence.Split(' ');
+                    if (textBoxMatrix != null)
+                    {
+                        for (int i = 0; i < currSentences.Length + 1; i++)
+                        {
+                            for (int j = 0; j < currSentences.Length + 1; j++)
+                            {
+                                this.Controls.Remove(textBoxMatrix[i, j]);
+                            }
                         }
                     }
-                }             
+                }
+                currSentence = this.textBox1.Text;
+                string[] testingSentence = this.textBox1.Text.Split(' ');
+
+                      
 
                 //init matrix
                 cellMatrix = new List<Cell>[testingSentence.Length, testingSentence.Length];
