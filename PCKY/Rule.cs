@@ -28,7 +28,7 @@ namespace PCKY {
             }
         }
 
-        protected int Type {
+        public int Type {
             get {
                 return type;
             }

@@ -34,7 +34,7 @@
             this.structures = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.label1 = new System.Windows.Forms.Label();
             this.tVTree = new System.Windows.Forms.TreeView();
-            this.pnTree = new PCKY.ImageBox();
+            this.pnTree = new PCKY.ImagePanel();
             this.SuspendLayout();
             // 
             // textBox1
@@ -92,7 +92,7 @@
             this.pnTree.Image = null;
             this.pnTree.Location = new System.Drawing.Point(357, 38);
             this.pnTree.Name = "pnTree";
-            this.pnTree.Size = new System.Drawing.Size(634, 623);
+            this.pnTree.Size = new System.Drawing.Size(1075, 486);
             this.pnTree.TabIndex = 3;
             // 
             // Form1
@@ -100,7 +100,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1444, 631);
+            this.ClientSize = new System.Drawing.Size(1444, 531);
             this.Controls.Add(this.tVTree);
             this.Controls.Add(this.lVListTree);
             this.Controls.Add(this.pnTree);
@@ -108,6 +108,7 @@
             this.Controls.Add(this.textBox1);
             this.Name = "Form1";
             this.Text = "PCKY Algorithm";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -116,7 +117,7 @@
         #endregion
 
         private System.Windows.Forms.TextBox textBox1;
-        private ImageBox pnTree;
+        private ImagePanel pnTree;
         private System.Windows.Forms.ListView lVListTree;
         private System.Windows.Forms.ColumnHeader no;
         private System.Windows.Forms.ColumnHeader structures;
