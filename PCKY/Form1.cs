@@ -184,7 +184,7 @@ namespace PCKY {
                 for (int i = 0; i < cellMatrix[0, testingSentence.Length - 1].Count; i++) {
                     if (cellMatrix[0, testingSentence.Length - 1][i].Rule.Term.ToUpper().CompareTo("S") == 0) {
                         //bt = new Bitmap(testingSentence.Length * (h_distance + 10), countHeightOfTree(0, testingSentence.Length - 1, i, cellMatrix) * (v_distance + 10));
-                        bt = new Bitmap(testingSentence.Length * (h_distance + 10)*2, countHeightOfTree(0, testingSentence.Length - 1, i, cellMatrix) * (v_distance + 10));
+                        //bt = new Bitmap(testingSentence.Length * (h_distance + 10)*4, countHeightOfTree(0, testingSentence.Length - 1, i, cellMatrix) * (v_distance + 10));
                         //this.lbTreesListForm.Text += cellMatrix[0, testingSentence.Length - 1][i].Rule.Pro + " " + buildTree(0, testingSentence.Length - 1, i, cellMatrix) + "\n";
 
 
@@ -193,9 +193,10 @@ namespace PCKY {
                         tempItem[1] = cellMatrix[0, testingSentence.Length - 1][i].Rule.Pro + " " + buildTree(0, testingSentence.Length - 1, i, cellMatrix);
 
                         this.lVListTree.Items.Add(new ListViewItem(tempItem));
-                        //drawTree(0, testingSentence.Length - 1, i, cellMatrix, 10, 10);
-                        drawTree(0, testingSentence.Length - 1, i, cellMatrix,bt.Size.Width/2, 10);
-                        this.pnTree.Image = bt;
+
+                        //drawTree(0, testingSentence.Length - 1, i, cellMatrix,bt.Size.Width/2, 10);
+
+                        //this.pnTree.Image = bt;
 
 
                         this.tVTree.Nodes.Add(drawTreeView(0, testingSentence.Length - 1, i, cellMatrix));
@@ -205,6 +206,21 @@ namespace PCKY {
                     this.lVListTree.Items[0].Focused = true;
                     this.lVListTree.Items[0].Selected = true;
                 }
+            }
+        }
+
+        private int countWidthOfTree(int x_index, int y_index, int k_rule, List<Cell>[,] cellMatrix)
+        {
+            Cell cell = cellMatrix[x_index, y_index][k_rule];
+            if (cell.Index_rule1 == -1)
+            {
+                return 1;
+            }
+            else
+            {
+                int left = countWidthOfTree(cell.X_cell1, cell.Y_cell1, cell.Index_rule1, cellMatrix);
+                int right = countWidthOfTree(cell.X_cell2, cell.Y_cell2, cell.Index_rule2, cellMatrix);
+                return left + right;
             }
         }
 
@@ -253,17 +269,35 @@ namespace PCKY {
             SolidBrush drawBrush = new SolidBrush(Color.Black);
             if (cell.Index_rule1 == -1) {
                 string[] testingSentence = this.textBox1.Text.Split(' ');
-                gr.DrawString(cell.Rule.Term + "("+ x_index + ", "+ (y_index +1) + ")", drawFont, drawBrush, new Point(x_draw, y_draw));
+                //gr.DrawString(cell.Rule.Term + "("+ x_index + ", "+ (y_index +1) + ")", drawFont, drawBrush, new Point(x_draw, y_draw));
+                gr.DrawString(cell.Rule.Term , drawFont, drawBrush, new Point(x_draw, y_draw));
                 gr.DrawLine(Pens.Black,new Point(x_draw,y_draw), new Point(x_draw, y_draw + v_distance));
                 gr.DrawString(testingSentence[x_index], drawFont, drawBrush, new Point(x_draw, y_draw+ v_distance));
                 
             } else {
-                gr.DrawString(cell.Rule.Term + "(" + x_index + ", " + (y_index + 1) + ")", drawFont, drawBrush, new Point(x_draw, y_draw));
+                //gr.DrawString(cell.Rule.Term + "(" + x_index + ", " + (y_index + 1) + ")", drawFont, drawBrush, new Point(x_draw, y_draw));
+                gr.DrawString(cell.Rule.Term , drawFont, drawBrush, new Point(x_draw, y_draw));
 
-                gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw - h_distance, y_draw + v_distance));
-                gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw + h_distance, y_draw + v_distance));
-                drawTree(cell.X_cell1, cell.Y_cell1, cell.Index_rule1, cellMatrix, x_draw - h_distance, y_draw + v_distance);
-                drawTree(cell.X_cell2, cell.Y_cell2, cell.Index_rule2, cellMatrix, x_draw + h_distance, y_draw + v_distance);
+                int withTree = countWidthOfTree(x_index, y_index, k_rule, cellMatrix);
+
+                //int leftTree = countWidthOfTree(cell.X_cell1, cell.Y_cell1, cell.Index_rule1, cellMatrix);
+                //int rightTree = countWidthOfTree(cell.X_cell2, cell.Y_cell2, cell.Index_rule2, cellMatrix);
+
+
+                gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw - h_distance * (withTree / 2), y_draw + v_distance));
+                gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw + h_distance * (withTree / 2), y_draw + v_distance));
+                drawTree(cell.X_cell1, cell.Y_cell1, cell.Index_rule1, cellMatrix, x_draw - h_distance * (withTree / 2), y_draw + v_distance);
+                drawTree(cell.X_cell2, cell.Y_cell2, cell.Index_rule2, cellMatrix, x_draw + h_distance * (withTree / 2), y_draw + v_distance);
+
+                //gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw - h_distance * leftTree, y_draw + v_distance));
+                //gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw + h_distance * rightTree, y_draw + v_distance));
+                //drawTree(cell.X_cell1, cell.Y_cell1, cell.Index_rule1, cellMatrix, x_draw - h_distance * leftTree, y_draw + v_distance);
+                //drawTree(cell.X_cell2, cell.Y_cell2, cell.Index_rule2, cellMatrix, x_draw + h_distance * rightTree, y_draw + v_distance);
+
+                //gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw - h_distance, y_draw + v_distance));
+                //gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw + h_distance, y_draw + v_distance));
+                //drawTree(cell.X_cell1, cell.Y_cell1, cell.Index_rule1, cellMatrix, x_draw - h_distance, y_draw + v_distance);
+                //drawTree(cell.X_cell2, cell.Y_cell2, cell.Index_rule2, cellMatrix, x_draw + h_distance, y_draw + v_distance);
 
                 //gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw, y_draw + v_distance));
                 //gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw + h_distance, y_draw + v_distance));
@@ -287,17 +321,28 @@ namespace PCKY {
         private void lVListTree_SelectedIndexChanged(object sender, EventArgs e) {
             if(this.tVTree.Nodes.Count != 0 && this.lVListTree.SelectedItems.Count != 0) {
                 this.tVTree.Nodes[this.lVListTree.SelectedIndices[0]].ExpandAll();
-
                 this.pnTree.Image = null;
-
                 string[] testingSentence = this.textBox1.Text.Split(' ');
-
-
                 //bt = new Bitmap(testingSentence.Length * (h_distance + 10), countHeightOfTree(0, testingSentence.Length - 1, this.lVListTree.SelectedIndices[0], cellMatrix) * (v_distance + 10));
-                bt = new Bitmap(testingSentence.Length * (h_distance + 10) * 2, countHeightOfTree(0, testingSentence.Length - 1, this.lVListTree.SelectedIndices[0], cellMatrix) * (v_distance + 10));
+                bt = new Bitmap(testingSentence.Length * (h_distance + 10) * 4, countHeightOfTree(0, testingSentence.Length - 1, this.lVListTree.SelectedIndices[0], cellMatrix) * (v_distance + 10));
                 //drawTree(0, testingSentence.Length - 1, this.lVListTree.SelectedIndices[0], cellMatrix, 10, 10);
                 drawTree(0, testingSentence.Length - 1, this.lVListTree.SelectedIndices[0], cellMatrix, bt.Size.Width / 2, 10);
+                //this.pnTree.Image = bt;
+
+
+
+                //int leftTree = countWidthOfTree(cellMatrix[0, testingSentence.Length - 1][this.lVListTree.SelectedIndices[0]].X_cell1, cellMatrix[0, testingSentence.Length - 1][this.lVListTree.SelectedIndices[0]].Y_cell1, cellMatrix[0, testingSentence.Length - 1][this.lVListTree.SelectedIndices[0]].Index_rule1, cellMatrix);
+                //int startDraw = h_distance * leftTree + 20;
+
+
+                //drawTree(0, testingSentence.Length - 1, i, cellMatrix,bt.Size.Width/2, 10);
+                //drawTree(0, testingSentence.Length - 1, this.lVListTree.SelectedIndices[0], cellMatrix, startDraw, 10);
+
                 this.pnTree.Image = bt;
+                this.pnTree.HorizontalScroll.Value = this.HorizontalScroll.Minimum+(this.HorizontalScroll.Maximum -this.HorizontalScroll.Minimum / 2);
+                
+                //this.pnTree.AutoScrollPosition = new Point(-this.HorizontalScroll.Maximum / 2, this.VerticalScroll.Maximum / 2);
+                //this.pnTree.PerformLayout();
             }
         }
     }

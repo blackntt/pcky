@@ -53,7 +53,7 @@
             this.lVListTree.FullRowSelect = true;
             this.lVListTree.Location = new System.Drawing.Point(12, 38);
             this.lVListTree.Name = "lVListTree";
-            this.lVListTree.Size = new System.Drawing.Size(482, 156);
+            this.lVListTree.Size = new System.Drawing.Size(339, 156);
             this.lVListTree.TabIndex = 4;
             this.lVListTree.UseCompatibleStateImageBehavior = false;
             this.lVListTree.View = System.Windows.Forms.View.Details;
@@ -81,7 +81,7 @@
             // 
             this.tVTree.Location = new System.Drawing.Point(12, 200);
             this.tVTree.Name = "tVTree";
-            this.tVTree.Size = new System.Drawing.Size(482, 324);
+            this.tVTree.Size = new System.Drawing.Size(339, 324);
             this.tVTree.TabIndex = 5;
             // 
             // pnTree
@@ -90,9 +90,9 @@
             this.pnTree.AutoSize = true;
             this.pnTree.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.pnTree.Image = null;
-            this.pnTree.Location = new System.Drawing.Point(500, 38);
+            this.pnTree.Location = new System.Drawing.Point(357, 38);
             this.pnTree.Name = "pnTree";
-            this.pnTree.Size = new System.Drawing.Size(547, 623);
+            this.pnTree.Size = new System.Drawing.Size(634, 623);
             this.pnTree.TabIndex = 3;
             // 
             // Form1
