@@ -13,7 +13,9 @@ namespace PCKY
     public partial class Form1 : Form
     {
         const string TRAINING_FILE = "training.txt";
-        const string TRAINING_FILE_2 = "training_2.txt";
+        //const string TRAINING_FILE = "training_2.txt";
+        //const string TRAINING_FILE = "training_3.txt";
+        //const string TRAINING_FILE = "training_1_2.txt";
         List<Rule1> rules1 = new List<Rule1>();
         List<Rule2> rules2 = new List<Rule2>();
         List<Cell>[,] cellMatrix;
@@ -29,7 +31,7 @@ namespace PCKY
         {
             InitializeComponent();
             //getRulesFromFile(rules1, rules2);
-            getRulesFromFileNewVersion(rules1, rules2);
+            getRulesFromFileNewVersion2(rules1, rules2);
 
         }
         private void getRulesFromFile(List<Rule1> rules1, List<Rule2> rules2)
@@ -61,14 +63,10 @@ namespace PCKY
                 }
             }
         }
-
-        private void getRulesFromFileNewVersion(List<Rule1> rules1, List<Rule2> rules2)
+        private void getRulesFromFile2(List<Rule1> rules1, List<Rule2> rules2)
         {
-            List<List<int>> generlCount = new List<List<int>>();
-            List<string> generalTerm = new List<string>();
-            List<List<Rule>> generalRules = new List<List<Rule>>();
             //Read content from the training file to a string
-            string[] content = System.IO.File.ReadAllLines(TRAINING_FILE_2);
+            string[] content = System.IO.File.ReadAllLines(TRAINING_FILE);
 
             //create rule1 from training content
             foreach (var line in content)
@@ -76,7 +74,42 @@ namespace PCKY
                 string[] strRule = line.Split(':');
 
                 //if current rule is rule1
-                if (strRule.GetValue(0) as string == "rule1")
+                //if (strRule.GetValue(0) as string == "rule1")
+                if (strRule.GetValue(1).ToString().Split(' ').Length > 1)
+                {
+                    Rule1 currRule = new Rule1();
+                    currRule.Term = (string)strRule.GetValue(0);
+                    currRule.Alter_terms = (strRule.GetValue(1) as string).Split(' ').ToList();
+                    currRule.Pro = Decimal.Parse(strRule.GetValue(2).ToString());
+                    rules1.Add(currRule);
+                }
+                else//rule2
+                {
+                    Rule2 currRule = new Rule2();
+                    currRule.Term = (string)strRule.GetValue(0);
+                    currRule.Alter_term = (strRule.GetValue(1) as string);
+                    currRule.Pro = Decimal.Parse(strRule.GetValue(2).ToString());
+                    rules2.Add(currRule);
+                }
+            }
+        }
+        private void getRulesFromFileNewVersion(List<Rule1> rules1, List<Rule2> rules2)
+        {
+            List<List<int>> generlCount = new List<List<int>>();
+            List<string> generalTerm = new List<string>();
+            List<List<Rule>> generalRules = new List<List<Rule>>();
+            //Read content from the training file to a string
+            string[] content = System.IO.File.ReadAllLines(TRAINING_FILE);
+
+            //create rule1 from training content
+            foreach (var line in content)
+            {
+                string[] strRule = line.Split(':');
+
+                //if current rule is rule1
+                //if (strRule.GetValue(0) as string == "rule1")
+                //if (strRule.GetValue(2).ToString().Split(' ').Length > 1)
+                if (strRule.GetValue(2).ToString().Split(' ').Length > 1)
                 {
                     Rule1 currRule = new Rule1();
                     currRule.Term = (string)strRule.GetValue(1);
@@ -183,6 +216,126 @@ namespace PCKY
                 }
             }
         }
+        private void getRulesFromFileNewVersion2(List<Rule1> rules1, List<Rule2> rules2)
+        {
+            List<List<int>> generalCount = new List<List<int>>();
+            List<string> generalTerm = new List<string>();
+            List<List<Rule>> generalRules = new List<List<Rule>>();
+            //Read content from the training file to a string
+            string[] content = System.IO.File.ReadAllLines(TRAINING_FILE);
+
+            //create rule1 from training content
+            foreach (var line in content)
+            {
+                string[] strRule = line.Split(':');
+                if (strRule.GetValue(1).ToString().Split(' ').Length > 1)
+                {
+                    Rule1 currRule = new Rule1();
+                    currRule.Term = (string)strRule.GetValue(0);
+                    currRule.Alter_terms = (strRule.GetValue(1) as string).Split(' ').ToList();
+                    currRule.Pro = Decimal.Parse(strRule.GetValue(2).ToString());
+
+                    if (generalTerm.Contains(currRule.Term))
+                    {
+                        int i = generalTerm.IndexOf(currRule.Term);
+                        bool flag = false;
+                        for (int j = 0; j < generalRules[i].Count; j++)
+                        {
+                            if (generalRules[i][j].Type == currRule.Type)
+                            {
+                                string term1 = currRule.Alter_terms[0].ToUpper();
+                                string term2 = currRule.Alter_terms[1].ToUpper();
+                                string term1_2 = ((Rule1)generalRules[i][j]).Alter_terms[0].ToUpper();
+                                string term2_2 = ((Rule1)generalRules[i][j]).Alter_terms[1].ToUpper();
+                                if (term1.CompareTo(term1_2) == 0 && term2.CompareTo(term2_2) == 0)
+                                {
+                                    generalCount[i][j] += (int)currRule.Pro;
+                                    flag = true;
+                                }
+                            }
+                        }
+                        if (flag == false)
+                        {
+                            generalRules[i].Add(currRule);
+                            generalCount[i].Add((int)currRule.Pro);
+                        }
+                    }
+                    else
+                    {
+                        generalTerm.Add(currRule.Term);
+                        List<Rule> tempRuleSet = new List<Rule>();
+                        tempRuleSet.Add(currRule);
+                        generalRules.Add(tempRuleSet);
+                        List<int> tempCountSet = new List<int>();
+                        tempCountSet.Add((int)currRule.Pro);
+                        generalCount.Add(tempCountSet);
+                    }
+
+                }
+                else//rule2
+                {
+                    Rule2 currRule = new Rule2();
+                    currRule.Term = (string)strRule.GetValue(0);
+                    currRule.Alter_term = (strRule.GetValue(1) as string);
+                    currRule.Pro = Decimal.Parse(strRule.GetValue(2).ToString());
+                    if (generalTerm.Contains(currRule.Term))
+                    {
+                        int i = generalTerm.IndexOf(currRule.Term);
+                        bool flag = false;
+                        for (int j = 0; j < generalRules[i].Count; j++)
+                        {
+                            if (generalRules[i][j].Type == currRule.Type)
+                            {
+                                string term1 = currRule.Alter_term.ToUpper();
+                                string term1_2 = ((Rule2)generalRules[i][j]).Alter_term.ToUpper();
+                                if (term1.CompareTo(term1_2) == 0)
+                                {
+                                    generalCount[i][j] += (int)currRule.Pro;
+                                    flag = true;
+                                }
+                            }
+                        }
+                        if (flag == false)
+                        {
+                            generalRules[i].Add(currRule);
+                            generalCount[i].Add((int)currRule.Pro);
+                        }
+                    }
+                    else
+                    {
+                        generalTerm.Add(currRule.Term);
+                        List<Rule> tempRuleSet = new List<Rule>();
+                        tempRuleSet.Add(currRule);
+                        generalRules.Add(tempRuleSet);
+                        List<int> tempCountSet = new List<int>();
+                        tempCountSet.Add((int)currRule.Pro);
+                        generalCount.Add(tempCountSet);
+                    }
+                }
+            }
+
+            for (int i = 0; i < generalTerm.Count; i++)
+            {
+                int sum = 0;
+                foreach (var item in generalCount[i])
+                {
+                    sum += item;
+                }
+                for (int j = 0; j < generalRules[i].Count; j++)
+                {
+                    generalRules[i][j].Pro = (decimal)generalCount[i][j] / sum;
+                    if (generalRules[i][j].Type == 1)
+                    {
+                        rules1.Add((Rule1)generalRules[i][j]);
+                    }
+                    else
+                    {
+                        rules2.Add((Rule2)generalRules[i][j]);
+                    }
+                }
+            }
+        }
+
 
         private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -205,13 +358,13 @@ namespace PCKY
                         {
                             for (int j = 0; j < currSentences.Length + 1; j++)
                             {
-                                this.Controls.Remove(textBoxMatrix[i, j]);
+                                this.pnTextBoxMatrix.Controls.Remove(textBoxMatrix[i, j]);
                             }
                         }
                     }
                 }
-                currSentence = this.textBox1.Text;
-                string[] testingSentence = this.textBox1.Text.Split(' ');
+                currSentence = this.txtSentence.Text;
+                string[] testingSentence = this.txtSentence.Text.Split(' ');
 
 
 
@@ -266,7 +419,7 @@ namespace PCKY
                                                     Rule1 newItem = new Rule1();
                                                     newItem.Alter_terms = item.Alter_terms;
                                                     newItem.P = item.P;
-                                                    newItem.Pro = item.Pro * cellMatrix[row, col][0].Rule.Pro * cellMatrix[col + 1, i][0].Rule.Pro;
+                                                    newItem.Pro = item.Pro * cellMatrix[row, col][k_rule1].Rule.Pro * cellMatrix[col + 1, i][k_rule2].Rule.Pro;
                                                     newItem.Term = item.Term;
                                                     Cell newCell = new Cell();
                                                     newCell.Rule = newItem;
@@ -290,7 +443,7 @@ namespace PCKY
                 }
 
                 int x_start_button = 10; //1100
-                int y_start_button = 600; //50
+                int y_start_button = 10; //50
                 int width_textbox = 50;
                 int height_textbox = 10;
                 int textbox_cell_distance_h = 0;
@@ -300,7 +453,7 @@ namespace PCKY
                 textBoxMatrix[0, 0].Size = new Size(width_textbox, height_textbox);
                 textBoxMatrix[0, 0].Location = new Point(x_start_button, y_start_button);
                 textBoxMatrix[0, 0].Text = "0";
-                this.Controls.Add(textBoxMatrix[0, 0]);
+                this.pnTextBoxMatrix.Controls.Add(textBoxMatrix[0, 0]);
 
                 for (int j = 0; j < testingSentence.Length; j++)
                 {
@@ -308,7 +461,7 @@ namespace PCKY
                     textBoxMatrix[0, j + 1].Size = new Size(width_textbox, height_textbox);
                     textBoxMatrix[0, j + 1].Location = new Point(x_start_button + (width_textbox + textbox_cell_distance_h) * (j + 1), y_start_button);
                     textBoxMatrix[0, j + 1].Text = testingSentence[j] + "--" + (j + 1);
-                    this.Controls.Add(textBoxMatrix[0, j + 1]);
+                    this.pnTextBoxMatrix.Controls.Add(textBoxMatrix[0, j + 1]);
                 }
                 for (int i = 0; i < testingSentence.Length; i++)
                 {
@@ -316,7 +469,7 @@ namespace PCKY
                     textBoxMatrix[i + 1, 0].Size = new Size(width_textbox, height_textbox);
                     textBoxMatrix[i + 1, 0].Location = new Point(x_start_button, y_start_button + (height_textbox + textbox_cell_distance_v) * (i + 1));
                     textBoxMatrix[i + 1, 0].Text = i.ToString();
-                    this.Controls.Add(textBoxMatrix[i + 1, 0]);
+                    this.pnTextBoxMatrix.Controls.Add(textBoxMatrix[i + 1, 0]);
                 }
                 for (int i = 0; i < testingSentence.Length; i++)
                 {
@@ -331,26 +484,26 @@ namespace PCKY
                         textBoxMatrix[i + 1, j + 1].Size = new Size(width_textbox, height_textbox);
                         textBoxMatrix[i + 1, j + 1].Location = new Point(x_start_button + (width_textbox + textbox_cell_distance_h) * (j + 1), y_start_button + (height_textbox + textbox_cell_distance_v) * (i + 1));
                         textBoxMatrix[i + 1, j + 1].Text = result;
-                        this.Controls.Add(textBoxMatrix[i + 1, j + 1]);
+                        this.pnTextBoxMatrix.Controls.Add(textBoxMatrix[i + 1, j + 1]);
                     }
                 }
 
-                //sort incrementally cell's probality
+                //sort cell's probality
                 List<Cell> tempSortedCells = cellMatrix[0, testingSentence.Length - 1];
                 if (tempSortedCells.Count > 0)
                 {
                     for (int i = 0; i < tempSortedCells.Count; i++)
                     {
-                        int min = i;
+                        int max = i;
                         for (int j = i + 1; j < tempSortedCells.Count; j++)
                         {
-                            if (tempSortedCells[min].Rule.Pro > tempSortedCells[j].Rule.Pro)
+                            if (tempSortedCells[max].Rule.Pro < tempSortedCells[j].Rule.Pro)
                             {
-                                min = j;
+                                max = j;
                             }
                         }
-                        Cell temp = tempSortedCells[min];
-                        tempSortedCells[min] = tempSortedCells[i];
+                        Cell temp = tempSortedCells[max];
+                        tempSortedCells[max] = tempSortedCells[i];
                         tempSortedCells[i] = temp;
                     }
                 }
@@ -401,7 +554,7 @@ namespace PCKY
             Cell cell = cellMatrix[x_index, y_index][k_rule];
             if (cell.Index_rule1 == -1)
             {
-                string[] testingSentence = this.textBox1.Text.Split(' ');
+                string[] testingSentence = this.txtSentence.Text.Split(' ');
                 return 1;
             }
             else
@@ -418,7 +571,7 @@ namespace PCKY
             Cell cell = cellMatrix[x_index, y_index][k_rule];
             if (cell.Index_rule1 == -1)
             {
-                string[] testingSentence = this.textBox1.Text.Split(' ');
+                string[] testingSentence = this.txtSentence.Text.Split(' ');
                 return "(" + cell.Rule.Term + " " + testingSentence[x_index] + ")";
             }
             else
@@ -433,7 +586,7 @@ namespace PCKY
             if (cell.Index_rule1 == -1)
             {
                 TreeNode newNode = new TreeNode(cell.Rule.Term + "(" + x_index + ", " + (y_index + 1) + ")");
-                string[] testingSentence = this.textBox1.Text.Split(' ');
+                string[] testingSentence = this.txtSentence.Text.Split(' ');
                 newNode.Nodes.Add(testingSentence[x_index]);
                 return newNode;
             }
@@ -454,7 +607,7 @@ namespace PCKY
             SolidBrush drawBrush = new SolidBrush(Color.Black);
             if (cell.Index_rule1 == -1)
             {
-                string[] testingSentence = this.textBox1.Text.Split(' ');
+                string[] testingSentence = this.txtSentence.Text.Split(' ');
                 gr.DrawString(cell.Rule.Term + "(" + x_index + ", " + (y_index + 1) + ")", drawFont, drawBrush, new Point(x_draw, y_draw));
                 gr.DrawLine(Pens.Black, new Point(x_draw, y_draw), new Point(x_draw, y_draw + v_distance));
                 gr.DrawString(testingSentence[x_index], drawFont, drawBrush, new Point(x_draw, y_draw + v_distance));
@@ -477,9 +630,9 @@ namespace PCKY
         private void pnTree_Paint(object sender, PaintEventArgs e)
         {
             e.Graphics.TranslateTransform(pnTree.AutoScrollPosition.X, pnTree.AutoScrollPosition.Y);
-            if (this.textBox1.Text != "")
+            if (this.txtSentence.Text != "")
             {
-                string[] testingSentence = this.textBox1.Text.Split(' ');
+                string[] testingSentence = this.txtSentence.Text.Split(' ');
                 for (int i = 0; i < cellMatrix[0, testingSentence.Length - 1].Count; i++)
                 {
                     if (cellMatrix[0, testingSentence.Length - 1][i].Rule.Term.ToUpper().CompareTo("S") == 0)
@@ -496,7 +649,7 @@ namespace PCKY
             {
                 this.tVTree.Nodes[this.lVListTree.SelectedIndices[0]].ExpandAll();
                 this.pnTree.Image = null;
-                string[] testingSentence = this.textBox1.Text.Split(' ');
+                string[] testingSentence = this.txtSentence.Text.Split(' ');
 
                 bt = new Bitmap(testingSentence.Length * (h_distance + 10) * 3, countHeightOfTree(0, testingSentence.Length - 1, this.lVListTree.SelectedIndices[0], cellMatrix) * (v_distance + 10));
                 drawTree(0, testingSentence.Length - 1, this.lVListTree.SelectedIndices[0], cellMatrix, bt.Size.Width / 2, 10);
@@ -505,6 +658,13 @@ namespace PCKY
                 this.pnTree.Image = bt;
                 this.pnTree.HorizontalScroll.Value = this.HorizontalScroll.Minimum + (this.HorizontalScroll.Maximum - this.HorizontalScroll.Minimum / 2);
             }
+        }
+
+        private void btnExcute_Click(object sender, EventArgs e)
+        {
+            KeyPressEventArgs keyPressEventArgs = new KeyPressEventArgs((char)13);
+
+            textBox1_KeyPress(this.txtSentence, keyPressEventArgs);
         }
     }
 
